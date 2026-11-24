@@ -1,0 +1,13 @@
+{
+  "_fonte": "De onde vieram estes textos (site, manual, briefing) e quando. Só use o que está aqui ou na fala do vídeo.",
+  "marca": {
+    "nome": "Nome do Cliente",
+    "tagline": "Frase principal da marca",
+    "tagline_cauda": "e a continuação que vai na cauda.",
+    "url": "cliente.com.br"
+  },
+  "produtos": [
+    { "id": "produto-1", "nome": "Produto 1", "tagline": "Frase curta do produto.", "imagem": "midia/produto-1.webp" }
+  ],
+  "ctas": ["Conheça", "Fale com a gente"]
+}

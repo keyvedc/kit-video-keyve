@@ -1,0 +1,26 @@
+{
+  "nome": "Nome do Cliente",
+  "site": "cliente.com.br",
+  "estilo": "keyve",
+  "cores": {
+    "acento": "#1b43f6",
+    "acento_claro": "#6f8bff",
+    "tinta": "#05070b",
+    "tinta_2": "#2a2f3c",
+    "papel": "#ffffff",
+    "fundo_claro": "#f4f5f8",
+    "fundo_escuro": "#05070b",
+    "chumbo": "#1d2230",
+    "muted": "#5d626e"
+  },
+  "fontes": {
+    "texto": { "familia": "Fonte do Texto", "arquivo": "fontes/texto.woff2", "pesos": "100 900", "peso": 500, "tracking": -0.03 },
+    "cauda": { "familia": "Fonte de Destaque", "arquivo": "fontes/destaque.woff2", "pesos": "400", "estilo": "italic", "peso": 400 }
+  },
+  "logo": {
+    "wordmark": "logos/wordmark.svg",
+    "recolorir": true,
+    "ponto": { "usar": true, "tamanho": 0.17, "gap": 0.05, "raio": 0.24 }
+  },
+  "raio": 24
+}

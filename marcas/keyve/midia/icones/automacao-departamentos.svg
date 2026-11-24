@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280" width="100%" height="100%">
+  <defs>
+    <radialGradient id="sv8Orb" cx="38%" cy="32%" r="68%">
+      <stop offset="0%" stop-color="#1E54FF"/>
+      <stop offset="60%" stop-color="#0D38F2"/>
+      <stop offset="100%" stop-color="#091D78"/>
+    </radialGradient>
+    <linearGradient id="sv8Rim" x1="10%" y1="90%" x2="90%" y2="10%">
+      <stop offset="0%" stop-color="#A855F7"/>
+      <stop offset="50%" stop-color="#1B43F6"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+    <filter id="sv8Glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Esfera Azul Keyve Luminosa -->
+  <circle cx="200" cy="140" r="102" fill="url(#sv8Orb)" stroke="url(#sv8Rim)" stroke-width="3" filter="url(#sv8Glow)"/>
+  <!-- Setas de Ciclo de Automação Contínua -->
+  <path d="M 142 115 A 62 62 0 0 1 254 110" fill="none" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round"/>
+  <polyline points="240,96 257,112 238,122" fill="none" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 258 165 A 62 62 0 0 1 146 170" fill="none" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round"/>
+  <polyline points="160,184 143,168 162,158" fill="none" stroke="#FFFFFF" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Raio Central de Velocidade e Automação -->
+  <polygon points="208,98 176,144 198,144 192,182 224,136 202,136" fill="#FFFFFF"/>
+</svg>

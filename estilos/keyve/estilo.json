@@ -1,0 +1,16 @@
+{
+  "nome": "Keyve",
+  "descricao": "Edição dinâmica e limpa: card vertical no canto, legendas do desfoque ao foco, cenas claras e escuras alternadas, ponto da marca nas viradas, CTA com cursor de site.",
+  "bpm": 120,
+  "fps": 30,
+  "mola": { "stiffness": 170, "damping": 21 },
+  "legenda": {
+    "cheia": { "tamanho": 68, "peso": 700, "y": 1268, "max_palavras": 3, "max_chars": 19, "desfoque": 10 },
+    "card":  { "tamanho": 54, "peso": 600, "x": 60, "largura": 600, "base": 1548, "max_palavras": 6, "max_chars": 30, "apagada": 0.28 },
+    "sublinhado": true
+  },
+  "card": { "x": 690, "y": 975, "w": 330, "h": 586, "raio": 30, "borda": 3 },
+  "transicao": { "dur_entrada": 0.6, "dur_saida": 0.42, "zoom": 0.07, "desfoque": 16 },
+  "filmagem": { "zoom_max": 1.15 },
+  "pausas": { "limiar_db": -38, "min": 0.25, "respiro": 0.09 }
+}

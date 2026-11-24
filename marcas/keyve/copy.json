@@ -1,0 +1,35 @@
+{
+  "_fonte": "Textos copiados de https://keyve.io em 23/11/2026. Só use o que está aqui; não invente números, clientes ou features.",
+  "marca": {
+    "nome": "Keyve",
+    "assistente": "Kyv",
+    "descricao": "estúdio de tecnologia",
+    "tagline": "Tecnologia que abre portas",
+    "tagline_cauda": "e acelera o que já é seu.",
+    "manifesto": "Sistemas, apps, sites, dados, segurança, mídia e agentes de I.A. — desenhados e construídos por uma equipe só, com a mesma régua de qualidade do primeiro pixel ao deploy.",
+    "frentes": "Nove frentes, uma equipe.",
+    "url": "keyve.io",
+    "lockup": "KEYVE.IO · TECNOLOGIA QUE ABRE PORTAS"
+  },
+  "servicos": [
+    { "id": "sistemas-apps", "nome": "Sistemas & Apps", "tagline": "Do fluxo no papel ao app no bolso.", "detalhe": "Sistemas web, plataformas SaaS e aplicativos iOS/Android sob medida, com arquitetura que aguenta crescer.", "imagem": "midia/servicos/sistemas-apps.webp", "icone": "midia/icones/sistemas-apps.svg" },
+    { "id": "site-vitrine", "nome": "Site Vitrine", "tagline": "Site profissional por nicho. Você vê antes de pagar.", "detalhe": "Site responsivo, personalizado com a sua marca, com hospedagem e desenvolvimento inclusos.", "imagem": "midia/servicos/site-vitrine.webp", "icone": "midia/icones/site-vitrine.svg" },
+    { "id": "produtos-digitais", "nome": "Produtos Digitais", "tagline": "Da ideia solta ao produto que se sustenta.", "detalhe": "Criação e modelagem de produtos digitais: proposta de valor, modelo de receita, MVP e roadmap de evolução.", "imagem": "midia/servicos/produtos-digitais.webp", "icone": "midia/icones/produtos-digitais.svg" },
+    { "id": "integracao-apis", "nome": "Integração de APIs", "tagline": "Seus sistemas conversando sem planilha no meio.", "detalhe": "Integrações entre ERP, CRM, gateways de pagamento, marketplaces e ferramentas internas, com filas, logs e reprocessamento.", "imagem": "midia/servicos/integracao-apis.webp", "icone": "midia/icones/integracao-apis.svg" },
+    { "id": "analise-dados", "nome": "Análise de Dados", "tagline": "Números limpos para decisões rápidas.", "detalhe": "Coleta, limpeza, modelagem e manipulação de dados, com dashboards e relatórios que a gestão realmente usa.", "imagem": "midia/servicos/analise-dados.webp", "icone": "midia/icones/analise-dados.svg" },
+    { "id": "seguranca-pentest", "nome": "Segurança & Pentest", "tagline": "Encontramos a falha antes de quem não deveria.", "detalhe": "Testes de intrusão autorizados, revisão de código e infraestrutura, e plano de correção priorizado por risco.", "imagem": "midia/servicos/seguranca-pentest.webp", "icone": "midia/icones/seguranca-pentest.svg" },
+    { "id": "trafego-pago", "nome": "Mídia & Tráfego Pago", "tagline": "Cada real investido com destino e medida.", "detalhe": "Gestão de mídia e tráfego pago em Meta, Google e outras plataformas, com rastreamento correto e otimização por resultado.", "imagem": "midia/servicos/trafego-pago.webp", "icone": "midia/icones/trafego-pago.svg" },
+    { "id": "automacao", "nome": "Automação de Departamentos", "tagline": "Menos tarefa repetida, mais gente pensando.", "detalhe": "Automação interna de financeiro, comercial, RH, atendimento e operações, ligando ferramentas e eliminando retrabalho.", "imagem": "midia/servicos/automacao.webp", "icone": "midia/icones/automacao-departamentos.svg" },
+    { "id": "agentes-ia", "nome": "Agentes de I.A.", "tagline": "Agentes que trabalham com os seus dados e as suas regras.", "detalhe": "Implementação de agentes de I.A. para atendimento, vendas, suporte interno e análise de documentos, com limites e supervisão humana.", "imagem": "midia/servicos/agentes-ia.webp", "icone": "midia/icones/agentes-ia.svg" }
+  ],
+  "site_vitrine": {
+    "pitch": "Site profissional por segmento, com a sua marca, seus serviços e seu WhatsApp. Você vê uma prévia funcional antes de pagar.",
+    "precos": ["R$ 179,70 por 3 meses", "R$ 360,00 por 12 meses"],
+    "inclui": "desenvolvimento e hospedagem inclusos",
+    "cta": "Conheça o Site Vitrine",
+    "nichos": ["academia", "advocacia", "beleza", "clinica", "construcao", "contabilidade", "escola", "eventos", "imobiliaria", "loja", "odontologia", "oficina", "pet", "restaurante", "servicos-residenciais", "turismo"],
+    "imagens": "midia/vitrine/<nicho>.webp (540x810, telas reais de celular)"
+  },
+  "metodo": ["Diagnóstico", "Protótipo", "Construção", "Lançamento", "Evolução"],
+  "kyv": "A Kyv responde no site sobre serviços, preços do Site Vitrine e próximos passos, com base de conhecimento própria e passagem para a equipe."
+}

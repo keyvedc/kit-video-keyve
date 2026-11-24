@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Modelo — vídeo falado editado (9:16)</title>
+<link rel="stylesheet" href="../../engine/base.css">
+</head>
+<body>
+<div class="stage"></div>
+<script type="module">
+// Modelo de vídeo falado no estilo aprovado. Sem src/frames mostra um placeholder no lugar da filmagem.
+// ATENÇÃO: as cenas e textos abaixo são DEMONSTRAÇÃO. Num vídeo real, troque tudo pelo storyboard,
+// com textos só da fala (words.json) ou do copy.json da marca.
+// Fluxo completo na skill video-falado. Para usar com uma filmagem real:
+//   node ferramentas/preparar-falado.mjs <video.mp4> videos/<slug> [--audio voz-limpa.wav]
+// isso gera src/frames (+ info.json), src/voz.wav, edl.json e words.json; depois ajuste os tempos abaixo à fala.
+import { createVideo, el, track, prog, clamp, lerp, expoOut, expoInOut, M, C } from '../../engine/runtime.js';
+import { MaskLine, BrandMark } from '../../engine/components.js';
+import { Filmagem, Legendas, cenaFx, Encerramento, Passagem, entra, blurIn, mostra } from '../../engine/falado.js';
+import { RolaTexto, Barras, Checklist, Escudo, ICONES } from '../../engine/blocos.js';
+
+const MARCA = 'keyve';
+const DUR = 19.0, T_FIM = 16.4;          // T_FIM = fim da fala (o botão vira o ponto e abre o end card)
+const words = await (await fetch('./words.json')).json();
+const S = {};
+
+// ---------- mapa do vídeo (ajuste aos tempos da fala em words.json) ----------
+const CARD_WIN = [[2.55, 6.5], [6.5, 10.9]];                 // trechos com o falante no card do canto
+const DARK_WIN = [[2.55, 6.5]];                              // cenas escuras (o resto é claro)
+const CAP_OFF  = [[10.9, 13.5], [T_FIM, 999]];               // sem legenda (o grafismo já repete a fala)
+const TEM_VOZ = false;                                       // true quando houver src/voz.wav
+
+createVideo({
+  marca: MARCA, duration: DUR, format: '9x16', title: 'Modelo falado', fps: 30,
+  ...(TEM_VOZ ? { voice: { file: './src/voz.wav', offset: 0, gain: 1, bedGain: 0.55, duck: 6 } } : {}),
+  audio: { bed: {
+    end: DUR - 1.5,
+    sections: [{ t: 0, level: 1 }, { t: 2.55, level: 2 }, { t: 10.9, level: 3 }, { t: 13.5, level: 2 }],
+    sfx: [
+      ...[2.5, 6.45, 10.85, 13.45].map((t) => ({ type: 'whoosh', t, gain: 0.75, dur: 0.5 })),
+      { type: 'tick', t: 3.2 }, { type: 'pop', t: 4.6 },
+      { type: 'pop', t: 7.3 }, { type: 'pop', t: 8.3 }, { type: 'pop', t: 9.4 },
+      { type: 'riser', t: 11.2, dur: 0.78, gain: 0.9 }, { type: 'impact', t: 12.0, gain: 1.6 }, { type: 'chime', t: 12.8 },
+    ],
+  } },
+
+  async setup(stage) {
+    stage.style.background = C.fundo_escuro;
+
+    // ---- cena escura (card): número que rola + barras ----
+    const g1 = (S.g1 = el('div', { cls: 'scene dark' }, stage));
+    S.g1a = MaskLine(g1, `<span style="opacity:.55">primeiro segundo</span>`, { size: 50, x: 70, y: 270, tracking: -0.02 });
+    S.rolo = RolaTexto(g1, ['3 segundos', '1 segundo'], { y: 340, size: 170 });
+    S.g1b = MaskLine(g1, '<span class="tail key">para prender atenção</span>', { size: 96, x: 70, y: 580 });
+    S.barras = Barras(g1, [0.9, 0.7, 0.45, 0.25, 0.1, 0, 0]);
+
+    // ---- cena clara (card): checklist que liga no tempo da fala ----
+    const g2 = (S.g2 = el('div', { cls: 'scene light' }, stage));
+    S.g2h = MaskLine(g2, 'Cada cena com', { size: 76, x: 70, y: 260, tracking: -0.035 });
+    S.g2t = MaskLine(g2, '<span class="tail key">a sua marca</span>', { size: 84, x: 70, y: 350 });
+    S.check = Checklist(g2, [
+      { label: 'Edição dinâmica', icone: ICONES.grafico, status: 'Pronto', t: 7.3 },
+      { label: 'Legendas', icone: ICONES.chat, status: 'Pronto', t: 8.3 },
+      { label: 'Identidade visual', icone: ICONES.site, status: 'Pronto', t: 9.4 },
+    ], { top: 520 });
+
+    // ---- passagem: o ponto abre a tela da marca ----
+    const g3 = (S.g3 = el('div', { cls: 'scene dark' }, stage));
+    S.escudo = Escudo(g3, { y: 300 });
+    S.mk3 = await BrandMark(g3, { h: 130, y: 700, color: C.papel });
+    S.g3t = MaskLine(g3, `<span class="tail key">${M.copy.marca?.tagline_cauda || 'pronto para postar.'}</span>`, { size: 70, y: 890, width: 1080, align: 'center', maxWidth: 960 });
+    S.pas = Passagem(stage);
+
+    // ---- filmagem + legendas + fecho ----
+    S.cam = await Filmagem(stage, { pasta: 'src/frames', foco: [540, 730] });
+    S.fim = await Encerramento(stage, { botao: M.copy.ctas?.[0] || `Conheça a ${M.nome}`, linha: `${M.copy.marca?.tagline || M.nome}`, url: M.site, tBotao: 13.75, tFim: T_FIM, dur: DUR });
+    S.leg = Legendas(stage, words, { card: CARD_WIN, escuro: DARK_WIN, desligar: CAP_OFF, chaves: ['vídeo', 'atenção', 'segundo', 'dinâmica', 'legendas', 'identidade', 'postar', 'Clique'] });
+  },
+
+  render(t) {
+    // ---------- filmagem: layouts que se transformam (track soma as molas, nunca salta) ----------
+    const cam = S.cam, lin = (p) => p;
+    const pos = track(t, cam.CHEIA(1.0), [
+      { t: 0, v: cam.CHEIA(1.06), dur: 2.5, ease: lin },     // push lento
+      { t: 2.55, v: cam.CARD },                               // vai para o card do canto
+      { t: 10.9, v: cam.FORA },                               // sai: só grafismo
+      { t: 13.5, v: cam.CHEIA(1.0) },                         // volta cheio para o CTA
+      { t: 13.8, v: cam.CHEIA(1.05), dur: 2.4, ease: lin },
+    ]);
+    cam.layout(pos);
+    cam.mostrar(!(t > 11.6 && t < 13.4) && !S.fim.cobre(t));
+
+    // ---------- cena escura ----------
+    if (cenaFx(S.g1, t, 2.55, 6.5)) {
+      S.g1a.set(entra(t, 2.6));
+      S.rolo.set(entra(t, 2.6), expoInOut(prog(t, 3.3, 0.35)));
+      S.g1b.set(entra(t, 4.4));
+      S.barras.render(t, 2.8);
+    }
+    // ---------- cena clara ----------
+    if (cenaFx(S.g2, t, 6.5, 10.9, { entrada: 'push' })) {
+      S.g2h.set(entra(t, 6.6)); S.g2t.set(entra(t, 6.75));
+      S.check.render(t, 6.9);
+    }
+    // ---------- passagem → tela da marca ----------
+    const tp = 11.0;
+    const { fecha } = S.pas.render(t, { t0: tp, de: [540, 960], para: S.mk3.dotRect });
+    if (cenaFx(S.g3, t, tp + 0.3, 13.5, { entrada: 'none' })) {
+      S.g3.style.zIndex = t < fecha + 0.42 ? 30 : 10;
+      if (S.mk3.dot) S.mk3.dot.style.visibility = t > fecha + 0.38 ? 'visible' : 'hidden';
+      S.mk3.reveal(expoInOut(prog(t, fecha + 0.32, 0.6)));
+      S.escudo.render(t, 12.3);
+      S.g3t.set(entra(t, 12.6));
+    }
+
+    S.fim.render(t);
+    S.leg.render(t);
+    return cam.desenhar(t);
+  },
+});
+</script>
+</body>
+</html>

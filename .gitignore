@@ -1,0 +1,7 @@
+node_modules/
+videos/*/out/
+videos/*/src/
+videos/*/partes/
+exemplos/*/out/
+.DS_Store
+engine/.tempos.json

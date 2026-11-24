@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Keyve — Showreel 15s (9:16)</title>
+<link rel="stylesheet" href="../../engine/base.css">
+<style>
+  .abs { position: absolute; left: 0; top: 0; }
+  #dot { position: absolute; left: 0; top: 0; background: var(--acento); z-index: 20; }
+  .z10 { z-index: 10; } .z30 { z-index: 30; }
+  .pill { position: absolute; padding: 22px 46px; border-radius: 999px; background: var(--tinta); color: #fff; font-size: 40px; font-weight: 500; letter-spacing: -0.01em; white-space: nowrap; }
+  .node { position: absolute; display: flex; align-items: center; justify-content: center; border-radius: 30px; background: var(--chumbo); color: #fff; font-size: 38px; font-weight: 500; letter-spacing: -0.01em; }
+  .tdot { position: absolute; width: 16px; height: 16px; border-radius: 50%; background: #fff; z-index: 30; }
+</style>
+</head>
+<body>
+<div class="stage"><div id="cam" class="layer" style="width:1080px;height:1920px"></div></div>
+<script type="module">
+import {
+  createVideo, el, tf, track, keys, spring, springAt, prog, clamp, lerp, pulse,
+  expoOut, expoIn, expoInOut, cameraAt, applyCamera, motionBlur,
+} from '../../engine/runtime.js';
+import { MaskLine, Phone, ImageTile, shape } from '../../engine/components.js';
+import { C as COLORS, M } from '../../engine/marca.js';
+import { KyvLogo } from '../../marcas/keyve/extras.js';
+const ServiceTile = (p, svc, o) => ImageTile(p, { img: svc.imagem, label: svc.nome, ...o });
+
+let copy; // preenchido no setup (marca carregada)
+const W = 1080, H = 1920;
+const CUTS = [0, 2, 4, 6, 8, 10, 12, 14, 15];
+const SOFT = { stiffness: 160, damping: 20 };
+const C = (cx, cy, w, h, r) => [cx - w / 2, cy - h / 2, w, h, r]; // retângulo do ponto: [x,y,w,h,raio]
+
+const S = {}; // nós e medidas (criados uma vez no setup)
+
+// ---------- cabeçalho de cena: 2 linhas, entrada/saída com tempos separados ----------
+function Headline(parent, l1, l2, t0, { color = COLORS.tinta, keyColor = COLORS.acento } = {}) {
+  const a = MaskLine(parent, l1, { size: 92, x: 70, y: 290, color, maxWidth: 940 });
+  const b = MaskLine(parent, `<span class="tail" style="color:${keyColor}">${l2}</span>`, { size: 100, x: 70, y: 392, color, maxWidth: 940 });
+  a.wrap.classList.add('z10'); b.wrap.classList.add('z10');
+  return { set(t) {
+    a.set(springAt(t, t0 + 0.08, SOFT), expoIn(prog(t, t0 + 1.62, 0.3)));
+    b.set(springAt(t, t0 + 0.5, SOFT), expoIn(prog(t, t0 + 1.70, 0.28)));
+  }, a, b };
+}
+
+createVideo({
+  marca: 'keyve',
+  duration: 15, format: '9x16', title: 'Keyve — Showreel 15s',
+  audio: {
+    hits: [2, 4, 6, 8, 10, 12, 14], big: [12, 14], riser: [10, 12],
+    ticks: [2.5, 3.0, 4.0, 4.5, 5.0, 6.5, 7.0, 9.0, 10.5, 11.0],
+  },
+
+  async setup(stage) {
+    copy = M.copy;
+    const cam = document.getElementById('cam');
+    S.cam = cam;
+
+    // ===== End card (também é o frame 0) =====
+    const logoH = 230;
+    const logo = KyvLogo(cam, { height: logoH });
+    const lx = (W - logo.width) / 2, ly = 690;
+    logo.root.style.left = lx + 'px'; logo.root.style.top = ly + 'px';
+    logo.root.classList.add('z10');
+    S.logo = logo;
+    S.E = [lx + logo.dotLocal.x, ly + logo.dotLocal.y, logo.dotLocal.w, logo.dotLocal.h, logo.dotLocal.w * 0.24];
+    // origem do encolhimento das letras = centro do ponto (em unidades do viewBox)
+    const db = { x: 2093 + 72, y: 655 + 68 };
+    for (const p of [logo.K, logo.yv, logo.tm]) { p.style.transformBox = 'view-box'; p.style.transformOrigin = `${db.x - 82}px ${db.y - 96}px`; }
+    S.tag1 = MaskLine(cam, copy.marca.tagline, { size: 52, x: 0, y: 985, width: W, align: 'center', tracking: -0.03 });
+    S.tag2 = MaskLine(cam, `<span class="tail" style="color:${COLORS.muted}">${copy.marca.tagline_cauda}</span>`, { size: 54, x: 0, y: 1050, width: W, align: 'center' });
+    S.pillWrap = el('div', { cls: 'abs z10', style: { left: '0px', top: '1170px', width: W + 'px', height: '100px', overflow: 'hidden' } }, cam);
+    S.pill = el('div', { cls: 'pill', text: copy.marca.url }, S.pillWrap);
+    S.pill.style.left = (W - S.pill.getBoundingClientRect().width) / 2 + 'px';
+    S.pill.style.top = '0px';
+
+    // ===== Hook =====
+    const words = ['Planilha', 'Retrabalho', 'Espera'];
+    S.hook = words.map((w, i) => {
+      const line = MaskLine(cam, `${w}<span class="pd" style="display:inline-block;width:0;height:0;vertical-align:baseline"></span>`, { size: 150, x: 80, y: 600 + i * 180, tracking: -0.05 });
+      line.wrap.classList.add('z10');
+      line.inner.style.transform = 'none';
+      const pd = line.inner.querySelector('.pd').getBoundingClientRect();
+      const st = stage.getBoundingClientRect();
+      const D = 38;
+      line.dot = [pd.left - st.left + 7, pd.top - st.top - D * 0.98, D, D * 0.95, 9];
+      line.set(0);
+      return line;
+    });
+
+    // ===== Site Vitrine =====
+    S.h1 = Headline(cam, 'Você vê', 'antes de pagar.', 2);
+    const ph = Phone(cam, { w: 500, h: 1000, images: ['academia', 'restaurante', 'pet', 'beleza'].map((n) => `midia/vitrine/${n}.webp`) });
+    ph.root.style.left = '290px'; ph.root.style.top = '590px'; ph.root.classList.add('z10');
+    ph.root.style.transformOrigin = '250px 490px';
+    S.phone = ph;
+    // botão "Chamar no WhatsApp" fica a ~90,5% da altura de cada tela
+    S.tapY = 590 + ph.bez + ph.sh * 0.905;
+
+    // ===== Dados =====
+    S.h2 = Headline(cam, 'Números limpos', 'para decisões rápidas.', 4);
+    const svg = el('svg', { cls: 'abs z10', attrs: { width: W, height: H, viewBox: `0 0 ${W} ${H}` } }, cam);
+    S.chartSvg = svg;
+    S.P = [[170, 1340], [420, 1190], [660, 1250], [900, 880]];
+    S.base = 1460;
+    S.axis = el('line', { attrs: { x1: 110, x2: 970, y1: S.base, y2: S.base, stroke: COLORS.tinta, 'stroke-width': 4, 'stroke-linecap': 'round' } }, svg);
+    S.bars = S.P.map(([x]) => el('rect', { attrs: { x: x - 62, width: 124, rx: 18, fill: '#eceef3' } }, svg));
+    S.line = el('polyline', { attrs: { fill: 'none', stroke: COLORS.tinta, 'stroke-width': 7, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' } }, svg);
+    svg.appendChild(S.axis); // eixo por cima das barras
+
+    // ===== APIs =====
+    S.h3 = Headline(cam, 'Sistemas conversando', 'sem planilha no meio.', 6);
+    const asvg = el('svg', { cls: 'abs z10', attrs: { width: W, height: H, viewBox: `0 0 ${W} ${H}` } }, cam);
+    S.apiSvg = asvg;
+    S.N0 = [540, 1080];
+    S.nodes = [
+      { label: 'ERP', c: [185, 1080], w: 200, h: 120, t: 6.5 },
+      { label: 'CRM', c: [895, 1080], w: 200, h: 120, t: 6.5 },
+      { label: 'Pagamentos', c: [540, 1410], w: 330, h: 120, t: 7.0 },
+    ].map((n) => {
+      n.line = el('line', { attrs: { stroke: COLORS.tinta, 'stroke-width': 5, 'stroke-dasharray': '16 12', 'stroke-linecap': 'round' } }, asvg);
+      n.el = el('div', { cls: 'node z10', text: n.label, style: { width: n.w + 'px', height: n.h + 'px', left: n.c[0] - n.w / 2 + 'px', top: n.c[1] - n.h / 2 + 'px' } }, cam);
+      return n;
+    });
+
+    // ===== Segurança 2D→3D =====
+    S.h4 = Headline(cam, 'Encontramos a falha', 'antes de quem não deveria.', 8);
+    const persp = el('div', { cls: 'abs z10', style: { width: W + 'px', height: H + 'px', perspective: '1500px', perspectiveOrigin: '540px 1150px' } }, cam);
+    const lock = el('div', { cls: 'abs', style: { left: '320px', top: '1010px', width: '440px', height: '360px', transformStyle: 'preserve-3d', transformOrigin: '220px 180px' } }, persp);
+    S.lock = lock;
+    const DEPTH = 14;
+    for (let i = DEPTH; i >= 0; i--) {
+      const shade = i === 0 ? COLORS.chumbo : `rgb(${10 + (DEPTH - i)},${12 + (DEPTH - i)},${18 + (DEPTH - i)})`;
+      // arco (atrás do corpo)
+      const sh = el('svg', { cls: 'abs', attrs: { width: 440, height: 300, viewBox: '0 0 440 300' }, style: { top: '-250px', transform: `translateZ(${-i * 4 - 10}px)`, overflow: 'visible' } }, lock);
+      const arc = el('path', { attrs: { d: 'M 95 300 L 95 160 A 125 125 0 0 1 345 160 L 345 300', fill: 'none', stroke: i === 0 ? '#2a3042' : shade, 'stroke-width': 54, 'stroke-linecap': 'butt' } }, sh);
+      (S.arcs ||= []).push({ sh, arc });
+      el('div', { cls: 'abs', style: { width: '440px', height: '360px', borderRadius: '56px', background: shade, transform: `translateZ(${-i * 4}px)` } }, lock);
+    }
+    S.keyhole = el('div', { cls: 'abs', style: { width: '76px', height: '76px', left: '182px', top: '122px', borderRadius: '50%', background: COLORS.acento, transform: 'translateZ(1px)' } }, lock);
+    S.slot = el('div', { cls: 'abs', style: { width: '30px', height: '80px', left: '205px', top: '170px', borderRadius: '15px', background: COLORS.acento, transform: 'translateZ(1px)', transformOrigin: '15px 0px' } }, lock);
+    S.arcLen = S.arcs[0].arc.getTotalLength();
+
+    // ===== Agentes de I.A. =====
+    S.h5 = Headline(cam, 'Agentes de I.A.', 'com as suas regras.', 10);
+    S.user = el('div', { cls: 'abs z10', text: 'Quanto custa o Site Vitrine?', style: { padding: '28px 36px', borderRadius: '40px', borderBottomRightRadius: '10px', background: '#eef0f4', fontSize: '46px', fontWeight: 450, letterSpacing: '-0.01em', whiteSpace: 'nowrap' } }, cam);
+    const uw = S.user.getBoundingClientRect().width;
+    S.user.style.left = 1010 - uw + 'px'; S.user.style.top = '760px'; S.user.style.transformOrigin = '100% 100%';
+    const kb = el('div', { cls: 'abs z30', style: { left: '70px', top: '930px', width: '760px', padding: '30px 38px', color: '#fff', fontSize: '46px', lineHeight: 1.22, fontWeight: 450, letterSpacing: '-0.01em' } }, cam);
+    S.kLines = ['<b style="font-weight:600">R$ 179,70 por 3 meses,</b>', 'com desenvolvimento e', 'hospedagem inclusos.'].map((h) => {
+      const w = el('div', { style: { overflow: 'hidden' } }, kb);
+      const i = el('div', { html: h }, w);
+      return { w, i };
+    });
+    const kr = kb.getBoundingClientRect();
+    S.K = [70, 930, kr.width, kr.height, 40];
+    S.kb = kb;
+    S.tdots = [0, 1, 2].map(() => el('div', { cls: 'tdot' }, cam));
+    S.TYP = [70, 930, 150, 90, 45];
+
+    // ===== Ápice =====
+    S.h6 = Headline(cam, 'Nove frentes,', 'uma equipe.', 12, { color: COLORS.papel, keyColor: COLORS.papel });
+    S.h6.a.wrap.classList.replace('z10', 'z30'); S.h6.b.wrap.classList.replace('z10', 'z30');
+    const wall = el('div', { cls: 'abs z30', style: { width: W + 'px', height: H + 'px', perspective: '1800px', perspectiveOrigin: '540px 1000px' } }, cam);
+    const grid = el('div', { cls: 'abs', style: { width: W + 'px', height: H + 'px', transformStyle: 'preserve-3d', transformOrigin: '540px 1090px' } }, wall);
+    S.grid = grid;
+    const TS = 296, G = 22, X0 = (W - (TS * 3 + G * 2)) / 2, Y0 = 640;
+    S.tiles = copy.servicos.map((svc, i) => {
+      const r = Math.floor(i / 3), c = i % 3;
+      const n = ServiceTile(grid, svc, { w: TS, h: TS });
+      const x = X0 + c * (TS + G), y = Y0 + r * (TS + G);
+      n.style.left = x + 'px'; n.style.top = y + 'px';
+      n.style.transformOrigin = '50% 0%';
+      return { n, r, c, x, y, cx: x + TS / 2, cy: y + TS / 2 };
+    });
+
+    // ===== O ponto =====
+    S.dot = el('div', { attrs: { id: 'dot' } }, cam);
+  },
+
+  render(t) {
+    // ---------------- O PONTO (objeto-condutor) ----------------
+    const hk = S.hook.map((l) => l.dot);
+    const tapC = (w) => C(540, S.tapY, w, w, w / 2);
+    const moves = [
+      { t: 0.12, v: hk[0] },
+      { t: 0.5, v: hk[1] },
+      { t: 1.0, v: hk[2] },
+      { t: 1.5, v: [50, 585, 980, 590, 30], dur: 0.26, ease: expoOut },     // vira bloco e cobre as palavras
+      { t: 1.78, v: C(540, 1090, 66, 66, 33), dur: 0.3, ease: expoInOut },   // contrai: círculo de toque
+      { t: 2.22, v: tapC(66) },
+      { t: 3.42, v: C(540, 1090, 40, 40, 20), dur: 0.3, ease: expoInOut },   // recolhe o celular
+      { t: 3.72, v: C(...S.P[0], 46, 46, 23) },
+      { t: 4.0, v: C(...S.P[1], 46, 46, 23) },
+      { t: 4.5, v: C(...S.P[2], 46, 46, 23) },
+      { t: 5.0, v: C(...S.P[3], 46, 46, 23) },
+      { t: 5.6, v: C(...S.N0, 46, 46, 23), dur: 0.36, ease: expoInOut },
+      { t: 5.98, v: C(...S.N0, 176, 176, 44) },                                // nó central
+      { t: 7.55, v: C(...S.N0, 46, 46, 23) },
+      { t: 7.85, v: C(540, 1170, 76, 76, 38) },                               // fechadura
+      { t: 9.72, v: S.TYP },                                                  // pílula "digitando"
+      { t: 10.42, v: S.K, cfg: SOFT },                                        // balão da Kyv
+      { t: 11.52, v: C(540, 1150, 44, 44, 22), dur: 0.36, ease: expoInOut },
+      { t: 11.98, v: [-220, -220, W + 440, H + 440, 0], dur: 0.34, ease: expoOut }, // vira o fundo
+      { t: 13.92, v: S.E, dur: 0.42, ease: expoInOut },                       // volta ao logo
+    ];
+    const dotAt = (tt) => track(tt, S.E, moves);
+    let [x, y, w, h, r] = dotAt(t);
+    // pressões de toque
+    const press = 1 - 0.22 * (pulse(t, 2.47, 0.2) + pulse(t, 2.97, 0.2));
+    if (press < 1) { x += (w * (1 - press)) / 2; y += (h * (1 - press)) / 2; w *= press; h *= press; }
+    const inLock = t > 8.35 && t < 9.62; // fechadura vive dentro do cadeado 3D (troca invisível)
+    shape(S.dot, { x, y, w, h, r: Math.max(0, r), o: inLock ? 0 : 1 });
+    S.dot.style.zIndex = t > 11.9 && t < 14.4 ? 5 : 20;
+    S.dot.style.boxShadow = t > 2.05 && t < 3.5 ? '0 0 0 7px #fff, 0 10px 30px rgba(5,7,11,.25)' : 'none';
+    motionBlur(S.dot, 'dot', (tt) => { const v = dotAt(tt); return [v[0] + v[2] / 2, v[1] + v[3] / 2]; }, t, { minSpeed: 1400, k: 0.008, max: 18 });
+
+    // ---------------- END CARD / FRAME 0 ----------------
+    // letras recolhem para dentro do ponto (0→0.32) e voltam a crescer dele (14.18→)
+    const ls = t < 7 ? 1 - expoInOut(prog(t, 0, 0.24)) : springAt(t, 14.18, SOFT);
+    for (const p of [S.logo.K, S.logo.yv, S.logo.tm]) { p.style.transform = `scale(${Math.max(0, ls)})`; p.style.visibility = ls <= 0.002 ? 'hidden' : 'visible'; }
+    S.logo.dot.style.visibility = 'hidden'; // o ponto do logo é sempre o #dot
+    const endIn = (t0) => (t < 7 ? 1 : springAt(t, t0, SOFT));
+    const out0 = (t0, d = 0.22) => (t < 7 ? expoInOut(prog(t, t0, d)) : 0);
+    S.tag1.set(endIn(14.36), out0(0.02));
+    S.tag2.set(endIn(14.46), out0(0.08));
+    const pin = endIn(14.56), pout = out0(0.12);
+    S.pill.style.transform = `translateY(${((1 - pin) * 1.2 + pout * 1.2) * 100}%)`;
+    S.pillWrap.style.visibility = pin <= 0.001 || pout >= 0.999 ? 'hidden' : 'visible';
+
+    // ---------------- HOOK ----------------
+    S.hook.forEach((l, i) => l.set(springAt(t, (i ? 0.02 : 0.2) + i * 0.5, SOFT), t >= 1.7 ? 1 : 0));
+
+    // ---------------- SITE VITRINE ----------------
+    S.h1.set(t);
+    const pg = t < 3.0 ? springAt(t, 1.98, SOFT) : 1 - expoIn(prog(t, 3.48, 0.3));
+    tf(S.phone.root, { s: Math.max(0.001, pg), o: pg > 0.01 ? 1 : 0 });
+    S.phone.strip.style.transform = `translateY(${-S.phone.sh * (springAt(t, 2.52, SOFT) + springAt(t, 3.02, SOFT))}px)`;
+
+    // ---------------- DADOS ----------------
+    S.h2.set(t);
+    const axisP = t < 5 ? expoOut(prog(t, 3.8, 0.5)) : 1 - expoIn(prog(t, 5.72, 0.26));
+    S.axis.setAttribute('x2', 110 + 860 * axisP);
+    S.axis.style.visibility = axisP > 0.002 ? 'visible' : 'hidden';
+    const barT = [3.82, 4.12, 4.62, 5.12];
+    S.bars.forEach((b, i) => {
+      const g = (t < 5.5 ? springAt(t, barT[i], SOFT) : 1 - expoIn(prog(t, 5.55 + i * 0.04, 0.24)));
+      const hh = Math.max(0, (S.base - 12 - S.P[i][1]) * g);
+      b.setAttribute('y', S.base - 12 - hh); b.setAttribute('height', hh);
+      b.style.visibility = hh > 0.5 ? 'visible' : 'hidden';
+    });
+    // linha: dos pontos já visitados até o centro atual do ponto; recolhe por trás a partir de 5.55
+    if (t > 3.85 && t < 5.95) {
+      const [dx, dy, dw, dh] = dotAt(Math.min(t, 5.6));
+      const pts = [S.P[0]];
+      const visited = [4.0, 4.5, 5.0].filter((tt) => t > tt + 0.18).length;
+      for (let i = 1; i <= visited; i++) pts.push(S.P[i]);
+      pts.push([dx + dw / 2, dy + dh / 2]);
+      // recolhimento: corta o início ao longo do comprimento
+      const cut = expoIn(prog(t, 5.55, 0.32));
+      let L = 0; const segs = [];
+      for (let i = 1; i < pts.length; i++) { const l = Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]); segs.push(l); L += l; }
+      S.line.setAttribute('points', pts.map((p) => p.join(',')).join(' '));
+      S.line.style.strokeDasharray = `${L} ${L + 10}`;
+      S.line.style.strokeDashoffset = -cut * L;
+      S.line.style.visibility = cut < 0.999 ? 'visible' : 'hidden';
+    } else S.line.style.visibility = 'hidden';
+
+    // ---------------- APIs ----------------
+    S.h3.set(t);
+    S.nodes.forEach((n, i) => {
+      const lp = t < 7.4 ? expoOut(prog(t, n.t - 0.05, 0.32)) : 1 - expoIn(prog(t, 7.58, 0.26));
+      const [x0, y0] = S.N0, [x1, y1] = n.c;
+      n.line.setAttribute('x1', x0); n.line.setAttribute('y1', y0);
+      n.line.setAttribute('x2', lerp(x0, x1, lp)); n.line.setAttribute('y2', lerp(y0, y1, lp));
+      n.line.setAttribute('stroke-dashoffset', -t * 140);
+      n.line.style.visibility = lp > 0.002 ? 'visible' : 'hidden';
+      const ns = t < 7.4 ? springAt(t, n.t + 0.12, SOFT) : 1 - expoIn(prog(t, 7.48, 0.2));
+      tf(n.el, { s: Math.max(0.001, ns), o: ns > 0.01 ? 1 : 0 });
+    });
+
+    // ---------------- SEGURANÇA 2D→3D ----------------
+    S.h4.set(t);
+    const lg = t < 9 ? springAt(t, 7.98, SOFT) : 1 - expoIn(prog(t, 9.6, 0.26));
+    const ry = -34 * (springAt(t, 8.5, SOFT) - springAt(t, 9.22, SOFT));
+    const rx = 12 * (springAt(t, 8.5, SOFT) - springAt(t, 9.22, SOFT));
+    S.lock.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg) scale(${Math.max(0.001, lg)})`;
+    S.lock.style.visibility = lg > 0.01 ? 'visible' : 'hidden';
+    S.keyhole.style.visibility = inLock ? 'visible' : 'hidden';
+    S.slot.style.transform = `translateZ(1px) scaleY(${t < 9 ? springAt(t, 8.12, SOFT) : 1 - expoIn(prog(t, 9.45, 0.15))})`;
+    const draw = expoOut(prog(t, 8.02, 0.45));
+    const lift = -64 * springAt(t, 8.98, SOFT);
+    S.arcs.forEach(({ sh, arc }) => {
+      arc.style.strokeDasharray = S.arcLen; arc.style.strokeDashoffset = S.arcLen * (1 - draw);
+      sh.style.marginTop = lift + 'px';
+    });
+
+    // ---------------- AGENTES DE I.A. ----------------
+    S.h5.set(t);
+    const ub = t < 11 ? springAt(t, 9.96, SOFT) : 1 - expoIn(prog(t, 11.45, 0.24));
+    tf(S.user, { s: Math.max(0.001, ub), o: ub > 0.01 ? 1 : 0 });
+    // pílula "digitando": três pontos em onda senoidal
+    const typing = t > 9.92 && t < 10.5;
+    S.tdots.forEach((d, i) => {
+      const [px, py, pw, ph] = dotAt(t);
+      const s = typing ? springAt(t, 9.95 + i * 0.04, SOFT) * (1 - expoIn(prog(t, 10.38, 0.1))) : 0;
+      const wave = Math.max(0, Math.sin((t - 9.9) * 2 * Math.PI * 2.4 - i * 0.9));
+      tf(d, { x: px + pw / 2 - 8 + (i - 1) * 28, y: py + ph / 2 - 8 - wave * 8, s: Math.max(0.001, s), o: s > 0.01 ? 1 : 0 });
+    });
+    const kIn = [10.62, 10.98, 11.08];
+    S.kLines.forEach(({ w, i: inner }, k) => {
+      const p = springAt(t, kIn[k], SOFT), o = expoIn(prog(t, 11.4 + k * 0.03, 0.18));
+      inner.style.transform = `translateY(${((1 - p) * 1.1 - o * 1.1) * 100}%)`;
+      w.style.visibility = p < 0.002 || o > 0.998 ? 'hidden' : 'visible';
+    });
+
+    // ---------------- ÁPICE ----------------
+    S.h6.set(t);
+    const tilt = keys(t, [{ t: 12.0, v: 16 }, { t: 13.5, v: 3 }]);
+    const gz = keys(t, [{ t: 12.0, v: -120 }, { t: 13.5, v: 0 }]);
+    S.grid.style.transform = `translateZ(${gz}px) rotateX(${tilt}deg)`;
+    S.tiles.forEach((tl, i) => {
+      const t0 = 12.06 + tl.r * 0.5 + tl.c * 0.05;
+      const unf = springAt(t, t0, SOFT);
+      const cv = expoIn(prog(t, 13.48 + (8 - i) * 0.025, 0.3));
+      const x = (540 - tl.cx) * cv, y = (1090 - tl.cy) * cv;
+      tl.n.style.transform = `translate3d(${x}px, ${y}px, 0) rotateX(${-90 * (1 - unf)}deg) scale(${1 - 0.86 * cv})`;
+      tl.n.style.visibility = unf < 0.01 || cv > 0.995 ? 'hidden' : 'visible';
+    });
+
+    // ---------------- CÂMERA ----------------
+    const focus = [
+      { t: 0, v: [540, 960, 1] }, { t: 2.15, v: [540, 960, 1] }, { t: 2.75, v: [540, 1040, 1.07] },
+      { t: 3.35, v: [540, 1040, 1.07] }, { t: 3.85, v: [540, 960, 1] },
+      { t: 8.3, v: [540, 960, 1] }, { t: 8.9, v: [540, 1060, 1.06] }, { t: 9.45, v: [540, 1060, 1.06] }, { t: 9.9, v: [540, 960, 1] },
+      { t: 12.0, v: [540, 960, 1] }, { t: 13.45, v: [540, 1020, 1.05] }, { t: 13.95, v: [540, 960, 1] },
+    ];
+    applyCamera(S.cam, cameraAt(t, { cuts: CUTS, W, H, focus }), W, H);
+  },
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "nome": "Keyve",
+  "site": "keyve.io",
+  "estilo": "keyve",
+  "cores": {
+    "acento": "#1b43f6",
+    "acento_claro": "#6f8bff",
+    "tinta": "#05070b",
+    "tinta_2": "#2a2f3c",
+    "papel": "#ffffff",
+    "fundo_claro": "#f4f5f8",
+    "fundo_escuro": "#05070b",
+    "chumbo": "#1d2230",
+    "muted": "#5d626e"
+  },
+  "fontes": {
+    "texto":   { "familia": "Geist", "arquivo": "fontes/geist.woff2", "pesos": "100 900", "peso": 500, "tracking": -0.03 },
+    "cauda":   { "familia": "Instrument Serif", "arquivo": "fontes/instrument-serif-italic.woff2", "pesos": "400", "estilo": "italic", "peso": 400 },
+    "display": { "familia": "Michroma", "arquivo": "fontes/michroma.woff2", "pesos": "400" }
+  },
+  "logo": {
+    "wordmark": "logos/wordmark.svg",
+    "simbolo": "logos/simbolo.svg",
+    "recolorir": true,
+    "ponto": { "usar": true, "x": 2540, "base": 586, "tamanho": 0.17, "gap": 0.05, "raio": 0.24 }
+  },
+  "raio": 24
+}

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Teste de marca</title>
+<link rel="stylesheet" href="../../engine/base.css">
+</head>
+<body>
+<div class="stage"></div>
+<script type="module">
+// Teste de marca (6 s): confere cores, fontes, assinatura com o ponto, cauda, legenda, CTA e cenas clara/escura.
+//   node engine/render.mjs videos/_teste-marca --beats --query marca=<slug> --cols 6
+import { createVideo, el, prog, expoOut, expoInOut, M, C } from '../../engine/runtime.js';
+import { MaskLine, BrandMark } from '../../engine/components.js';
+import { cenaFx, Botao, Cursor, entra, blurIn } from '../../engine/falado.js';
+
+const MARCA = new URLSearchParams(location.search).get('marca') || 'keyve';
+const S = {};
+createVideo({
+  marca: MARCA, duration: 6, title: 'Teste de marca', audio: { hits: [2, 4], ticks: [4.9] },
+  async setup(stage) {
+    const cp = M.copy.marca || {};
+    // 0–2 s escuro: assinatura + paleta
+    const a = (S.a = el('div', { cls: 'scene dark' }, stage));
+    S.mkA = await BrandMark(a, { h: 140, y: 520, color: C.papel });
+    S.nome = MaskLine(a, `<span style="opacity:.6">${M.nome} · ${M.site || ''}</span>`, { size: 40, y: 300, width: 1080, align: 'center' });
+    S.sw = Object.entries(C).map(([k, v], i) => {
+      const n = el('div', { style: { position: 'absolute', left: 70 + (i % 3) * 320 + 'px', top: 860 + Math.floor(i / 3) * 170 + 'px', width: '300px', height: '150px', borderRadius: '24px', background: v, boxShadow: '0 0 0 2px rgba(255,255,255,.18)' } }, a);
+      el('div', { text: `${k} ${v}`, style: { position: 'absolute', left: '16px', bottom: '12px', fontSize: '24px', fontWeight: 600, color: '#fff', mixBlendMode: 'difference' } }, n);
+      return n;
+    });
+    // 2–4 s claro: tipografia (texto + cauda + palavra-chave) e legenda
+    const b = (S.b = el('div', { cls: 'scene light' }, stage));
+    S.h1 = MaskLine(b, cp.tagline || 'Frase principal da marca', { size: 92, x: 70, y: 290, maxWidth: 940 });
+    S.h2 = MaskLine(b, `<span class="tail key">${cp.tagline_cauda || 'e a cauda em destaque.'}</span>`, { size: 100, x: 70, y: 400, maxWidth: 940 });
+    S.body = MaskLine(b, `<span style="color:${C.muted}">Texto 40 px · peso ${M.fontes.texto?.peso || 500}</span>`, { size: 40, x: 70, y: 560 });
+    S.cap = el('div', { cls: 'capF', style: { top: '1268px', fontSize: '68px', fontWeight: 700, letterSpacing: '-0.03em', color: C.tinta, textShadow: 'none' }, html: `Legenda com <span class="kw" style="position:relative">destaque<div class="ul"></div></span>` }, b);
+    // 4–6 s escuro: CTA clicado
+    const c = (S.c = el('div', { cls: 'scene dark' }, stage));
+    S.mkC = await BrandMark(c, { h: 110, y: 560, color: C.papel });
+    S.cta = Botao(c, M.copy.ctas?.[0] || `Conheça a ${M.nome}`, { y: 900 });
+    S.cur = Cursor(stage);
+  },
+  render(t) {
+    if (cenaFx(S.a, t, 0, 2)) {
+      S.mkA.reveal(expoInOut(prog(t, 0.15, 0.6)));
+      S.nome.set(entra(t, 0.1));
+      S.sw.forEach((n, i) => { const p = entra(t, 0.4 + i * 0.05); n.style.transform = `translateY(${(1 - p) * 40}px)`; blurIn(n, p); });
+    }
+    if (cenaFx(S.b, t, 2, 4, { entrada: 'push' })) {
+      S.h1.set(entra(t, 2.1)); S.h2.set(entra(t, 2.4)); S.body.set(entra(t, 2.6));
+      const p = expoOut(prog(t, 2.8, 0.3)); blurIn(S.cap, p);
+      S.cap.querySelector('.ul').style.transform = `scaleX(${expoOut(prog(t, 3.1, 0.4))})`;
+    }
+    if (cenaFx(S.c, t, 4, 6.5)) {
+      S.mkC.reveal(expoInOut(prog(t, 4.05, 0.5)));
+      const p = entra(t, 4.2); S.cta.el.style.transform = `scale(${0.8 + 0.2 * p})`; blurIn(S.cta.el, p);
+    }
+    const [x, y, w, h] = S.cta.rect;
+    S.cur.render(t, [{ tIn: 4.3, de: [900, 1400], para: [x + w - 70, y + h * 0.62], tClique: 4.9, onda: 'clara' }]);
+  },
+});
+</script>
+</body>
+</html>

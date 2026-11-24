@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Modelo — vídeo motion 9:16</title>
+<link rel="stylesheet" href="../../engine/base.css">
+<style>
+  #dot { position: absolute; left: 0; top: 0; background: var(--acento); z-index: 20; }
+</style>
+</head>
+<body>
+<div class="stage"><div id="cam" class="layer" style="width:1080px;height:1920px"></div></div>
+<script type="module">
+// Modelo mínimo: hook (1 compasso) → 1 cena (1 compasso) → end card (meio compasso) = 5 s.
+// Troque MARCA, os textos (de marcas/<marca>/copy.json) e os alvos do ponto; rode --beats.
+import { createVideo, el, track, springAt, prog, expoInOut, expoOut, cameraAt, applyCamera, motionBlur, M, C } from '../../engine/runtime.js';
+import { MaskLine, Headline, BrandMark, shape } from '../../engine/components.js';
+
+const MARCA = 'keyve';                 // pasta em marcas/
+const W = 1080, H = 1920, DUR = 5;
+const CUTS = [0, 2, 4, 5];
+const SOFT = { stiffness: 160, damping: 20 };
+const R = (cx, cy, w, h, r) => [cx - w / 2, cy - h / 2, w, h, r];   // retângulo do ponto [x, y, w, h, raio]
+const S = {};
+
+createVideo({
+  marca: MARCA, duration: DUR, format: '9x16', title: 'Modelo motion',
+  audio: { hits: [2, 4], big: [4], riser: [3, 4], ticks: [] },
+
+  async setup(stage) {
+    const cam = (S.cam = document.getElementById('cam'));
+    const copy = M.copy.marca || {};
+    // end card: assinatura da marca (o ponto real fica escondido; quem pousa nele é o #dot)
+    S.mark = await BrandMark(cam, { h: 150, y: 760 });
+    if (S.mark.dot) S.mark.dot.style.visibility = 'hidden';
+    S.E = [...S.mark.dotRect, S.mark.dotRect[2] * S.mark.dotRadius];
+    S.tag = MaskLine(cam, copy.tagline || M.nome, { size: 52, y: 1010, width: W, align: 'center', maxWidth: 940 });
+
+    // hook: uma palavra-problema; o ponto final dela é o objeto-condutor
+    S.word = MaskLine(cam, `Retrabalho<span class="pd" style="display:inline-block;width:0;height:0"></span>`, { size: 150, x: 80, y: 820, tracking: -0.05 });
+    S.word.inner.style.transform = 'none';
+    const pd = S.word.inner.querySelector('.pd').getBoundingClientRect();
+    S.wordDot = [pd.left + 7, pd.top - 37, 38, 36, 9];
+    S.word.set(0);
+
+    // cena: cabeçalho padrão (L1 texto + L2 cauda no acento)
+    S.head = Headline(cam, 'Menos tarefa repetida,', 'mais gente pensando.', 2);
+
+    S.dot = el('div', { attrs: { id: 'dot' } }, cam);
+  },
+
+  render(t) {
+    const moves = [
+      { t: 0.12, v: S.wordDot },
+      { t: 1.5, v: R(540, 1150, 220, 220, 56) },                  // cena: o ponto vira um bloco
+      { t: 3.5, v: R(540, 1150, 46, 46, 23), dur: 0.35, ease: expoInOut },
+      { t: 3.92, v: S.E, dur: 0.4, ease: expoInOut },              // volta à assinatura
+    ];
+    const dotAt = (tt) => track(tt, S.E, moves);
+    const [x, y, w, h, r] = dotAt(t);
+    shape(S.dot, { x, y, w, h, r });
+    motionBlur(S.dot, 'dot', (tt) => { const v = dotAt(tt); return [v[0] + v[2] / 2, v[1] + v[3] / 2]; }, t, { minSpeed: 1400, k: 0.008 });
+
+    // assinatura: visível no frame 0 (loop), some no início e volta no fim
+    const ls = t < 2 ? 1 - expoInOut(prog(t, 0, 0.24)) : springAt(t, 4.18, SOFT);
+    S.mark.reveal(ls);
+    S.tag.set(t < 2 ? 1 : springAt(t, 4.36, SOFT), t < 2 ? expoInOut(prog(t, 0.02, 0.22)) : 0);
+    S.word.set(springAt(t, 0.2, SOFT), expoOut(prog(t, 1.62, 0.3)));
+    S.head.set(t);
+
+    applyCamera(S.cam, cameraAt(t, { cuts: CUTS, W, H }), W, H);
+  },
+});
+</script>
+</body>
+</html>

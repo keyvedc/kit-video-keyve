@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280" width="100%" height="100%">
+  <defs>
+    <radialGradient id="sv1Orb" cx="38%" cy="32%" r="68%">
+      <stop offset="0%" stop-color="#1B43F6" stop-opacity="0.55"/>
+      <stop offset="65%" stop-color="#0A1438" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#05070B"/>
+    </radialGradient>
+    <linearGradient id="sv1Rim" x1="10%" y1="90%" x2="90%" y2="10%">
+      <stop offset="0%" stop-color="#A855F7"/>
+      <stop offset="50%" stop-color="#1B43F6"/>
+      <stop offset="100%" stop-color="#38BDF8"/>
+    </linearGradient>
+    <filter id="sv1Glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <!-- Esfera Neon Central -->
+  <circle cx="200" cy="140" r="102" fill="url(#sv1Orb)" stroke="url(#sv1Rim)" stroke-width="3" filter="url(#sv1Glow)"/>
+  <!-- Janela de Sistema Glassmorphic -->
+  <rect x="88" y="68" width="175" height="122" rx="14" fill="#080D1F" fill-opacity="0.9" stroke="url(#sv1Rim)" stroke-width="2.5"/>
+  <line x1="88" y1="90" x2="263" y2="90" stroke="#1E293B" stroke-width="2"/>
+  <circle cx="104" cy="79" r="3.5" fill="#38BDF8"/>
+  <circle cx="116" cy="79" r="3.5" fill="#6A4DFF"/>
+  <!-- Símbolo de Código e Cubo Modular -->
+  <path d="M 122 122 L 108 135 L 122 148 M 148 122 L 162 135 L 148 148 M 139 116 L 131 154" fill="none" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="178" y="106" width="66" height="26" rx="6" fill="#1B43F6" fill-opacity="0.3" stroke="#38BDF8" stroke-width="1.5"/>
+  <rect x="178" y="142" width="66" height="26" rx="6" fill="#6A4DFF" fill-opacity="0.25" stroke="#A855F7" stroke-width="1.5"/>
+  <!-- App Mobile Flutuante com Brilho -->
+  <rect x="236" y="88" width="76" height="132" rx="16" fill="#0B132B" stroke="#FFFFFF" stroke-width="3" filter="url(#sv1Glow)"/>
+  <rect x="262" y="98" width="24" height="4" rx="2" fill="#38BDF8"/>
+  <!-- Cubo Build Interno no App -->
+  <g fill="none" stroke="#FFFFFF" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" transform="translate(274, 144)">
+    <polygon points="0,-20 18,-10 18,10 0,20 -18,10 -18,-10" fill="#1B43F6"/>
+    <polyline points="-18,-10 0,0 18,-10"/>
+    <line x1="0" y1="0" x2="0" y2="20"/>
+  </g>
+  <line x1="256" y1="184" x2="292" y2="184" stroke="#38BDF8" stroke-width="4" stroke-linecap="round"/>
+  <line x1="262" y1="196" x2="286" y2="196" stroke="#A855F7" stroke-width="4" stroke-linecap="round"/>
+</svg>

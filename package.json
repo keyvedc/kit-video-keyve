@@ -1,0 +1,13 @@
+{
+  "name": "kit-video-keyve",
+  "private": true,
+  "type": "module",
+  "description": "Kit de vídeo Keyve: motor de criativos em código (HTML determinístico + Playwright + ffmpeg) com marcas e estilos trocáveis.",
+  "scripts": {
+    "instalar": "npm install && npx playwright install chromium",
+    "checar": "node ferramentas/checar.mjs"
+  },
+  "dependencies": {
+    "playwright": "1.48.2"
+  }
+}

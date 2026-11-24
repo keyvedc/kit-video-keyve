@@ -1,0 +1,56 @@
+/* Base visual do kit. As cores e fontes vêm da marca ativa (variáveis injetadas por engine/marca.js).
+   Toda cena faz <link rel="stylesheet" href="../../engine/base.css">. Não escreva cores fixas nas cenas. */
+html, body { margin: 0; padding: 0; background: #000; }
+* { box-sizing: border-box; }
+.stage {
+  position: relative; overflow: hidden;
+  width: var(--W, 1080px); height: var(--H, 1920px);
+  font-family: var(--f-texto); font-weight: var(--peso); letter-spacing: var(--tracking);
+  color: var(--tinta); background: var(--papel);
+  -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision;
+}
+.layer, .abs { position: absolute; left: 0; top: 0; }
+.layer { transform-origin: 0 0; }
+
+/* "cauda" da frase (no estilo Keyve: serifa itálica) e palavra-chave no acento */
+.tail { font-family: var(--f-cauda); font-style: var(--cauda-estilo); font-weight: var(--cauda-peso); letter-spacing: -0.02em; }
+.key  { color: var(--acento); }
+.dark .key, .dark .tail.key { color: var(--acento-claro); }
+
+/* cenas cheias: claras e escuras (escura com luz do acento) */
+.scene { position: absolute; left: 0; top: 0; width: var(--W, 1080px); height: var(--H, 1920px); overflow: hidden; z-index: 10; transform-origin: 50% 40%; }
+.dark  { background: radial-gradient(120% 60% at 50% 18%, rgba(var(--acento-rgb), .30), rgba(var(--acento-rgb), 0) 60%), var(--escuro); color: var(--papel); }
+.light { background: var(--claro); color: var(--tinta); }
+
+/* ponto / objeto-condutor */
+.dotb { position: absolute; left: 0; top: 0; background: var(--acento); }
+
+/* filmagem */
+.foot { position: absolute; left: 0; top: 0; overflow: hidden; background: #111; z-index: 25; }
+.foot canvas { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+.foot .scrim { position: absolute; left: 0; right: 0; bottom: 0; height: 52%; background: linear-gradient(to top, rgba(5,7,11,.62), rgba(5,7,11,0)); }
+
+/* legendas */
+.capF { position: absolute; left: 0; top: 0; width: var(--W, 1080px); text-align: center; white-space: nowrap; z-index: 45; color: #fff; text-shadow: 0 2px 20px rgba(5,7,11,.5); }
+.capC { position: absolute; top: 0; z-index: 45; line-height: 1.1; }
+.capF span, .capC span { display: inline-block; position: relative; margin-right: 0.22em; }
+.kw { font-family: var(--f-cauda); font-style: var(--cauda-estilo); font-weight: var(--cauda-peso); font-size: 1.12em; letter-spacing: -0.01em; }
+.ul { position: absolute; left: 0; right: 0; bottom: 0.02em; height: 0.1em; border-radius: 0.05em; background: var(--acento); transform-origin: 0 50%; }
+
+/* botão de CTA + cursor de site */
+.cta { position: absolute; display: flex; align-items: center; gap: 22px; padding: 26px 30px 26px 52px; border-radius: 999px; z-index: 46;
+       background: var(--acento); color: #fff; font-size: 50px; font-weight: 600; letter-spacing: -0.02em; white-space: nowrap;
+       box-shadow: inset 0 2px 0 rgba(255,255,255,.28), inset 0 -3px 0 rgba(0,0,0,.18), 0 24px 50px -18px rgba(var(--acento-rgb), .75), 0 0 0 1px rgba(5,7,11,.08); }
+.cta .ar { width: 72px; height: 72px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; flex: none; color: var(--acento); }
+.cursor { position: absolute; left: 0; top: 0; width: 64px; height: 80px; z-index: 48; transform-origin: 6px 4px; }
+.ripple { position: absolute; left: 0; top: 0; border-radius: 50%; border: 5px solid rgba(255,255,255,.9); z-index: 47; }
+
+/* blocos de UI (notificação, linha de checklist, painel) */
+.notif { position: absolute; left: 60px; width: 960px; padding: 26px 30px; border-radius: 34px; background: rgba(255,255,255,.94); color: var(--tinta);
+         box-shadow: 0 24px 60px -24px rgba(5,7,11,.35), 0 0 0 1px rgba(5,7,11,.05); display: flex; gap: 24px; align-items: flex-start; }
+.appic { width: 74px; height: 74px; border-radius: 18px; background: var(--tinta); flex: none; display: flex; align-items: center; justify-content: center; color: #fff; }
+.row { position: absolute; left: 60px; width: 960px; height: 112px; border-radius: 28px; background: #fff; color: var(--tinta); box-shadow: 0 16px 40px -24px rgba(5,7,11,.3), 0 0 0 1px rgba(5,7,11,.05);
+       display: flex; align-items: center; padding: 0 26px; gap: 24px; font-size: 40px; font-weight: 600; letter-spacing: -0.02em; }
+.stat { margin-left: auto; padding: 12px 22px; border-radius: 999px; font-size: 28px; font-weight: 600; display: flex; gap: 10px; align-items: center; }
+.panel { position: absolute; border-radius: var(--raio); background: #12151d; color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 40px 80px -30px rgba(0,0,0,.6); }
+.pill { position: absolute; padding: 22px 46px; border-radius: 999px; background: var(--tinta); color: #fff; font-size: 40px; font-weight: 500; white-space: nowrap; }
